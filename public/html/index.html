@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MQTT: Sensor data</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="../js/index.js"></script>
+</head>
+<body ng-app="APP" onload="startTime()">
+<h1>Real-time sensor data</h1>
+<div id="now"></div>
+<div id="content" ng-controller="myCtrl">
+	<div id="showAll"></div>
+	<button class="button" ng-click="temp()">Temperature</button>
+  <button class="button" ng-click="ill()">Illumination</button>
+</div>
+</body>
+</html>
