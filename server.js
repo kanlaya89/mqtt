@@ -5,6 +5,7 @@ var http = require('http').Server(app);
 var bodyParser = require('body-parser');
 var io = require('socket.io')(http);
 var mqtt = require('mqtt');
+test
 
 var settings = {
   port: 1883,
