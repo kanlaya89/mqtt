@@ -18,7 +18,7 @@ var cronJob = cron.job('*/' + every + ' * * * * *', function(time){
 
 // ------------------------------
 // Connect Broker
-client = mqtt.connect('mqtt://192.168.11.201:1883');
+client = mqtt.connect('mqtt://localhost:1883');
 
 // ------------------------------
 // Subscribed Topic list
@@ -60,6 +60,7 @@ function read(){
 client.on('message', function(topic, payload) {
   switch(topic) {
     case 'get' :
+      console.log("consJob started")
       cronJob.start();
       break;
     case 'changeTime' :
@@ -76,22 +77,6 @@ client.on('message', function(topic, payload) {
   console.log(topic);
   console.log(payload);
 });
-
-// ------------------------------
-// Time
-// function startTime() {
-//     var today = new Date();
-//     var h = today.getHours();
-//     var m = today.getMinutes();
-//     var s = today.getSeconds();
-//     m = checkTime(m);
-//     s = checkTime(s);
-//     now = h + ":" + m + ":" + s;
-// }
-// function checkTime(i) {
-//     if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
-//     return i;
-// }
  
 console.log('Client publishing.. ');
 client.publish('presence', 'Edison is alive..' + Date());
