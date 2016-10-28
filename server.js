@@ -11,6 +11,8 @@ var settings = {
   persistence: mosca.persistence.Memory
 };
 
+var clientConnected = false
+
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -18,8 +20,8 @@ app.use(express.static('public'));
 client = mqtt.connect('mqtt://localhost');
 client.subscribe('send');
 
-client.on('message', function(topic, message) {
-  console.log(topic);
+client.on('message', function(topic, message, qos) {
+  console.log(topic, message.toString());
   if(topic === 'send') {
     io.emit('all_sensor', message.toString());
   };
@@ -37,11 +39,17 @@ http.listen(3000, function () {
 // -----------------------------------
 //  socket on
 io.on('connection', function(socket) {
-  console.log("client connected")
-  client.publish('get', '');
-  socket.on('sensor', function(data) {
-    getSensor(data);
-  });
+  
+  if (clientConnected === false) {
+    console.log("client connected")
+    client.publish('get', '');
+    socket.on('sensor', function(data) {
+      getSensor(data);
+    });
+  }
+  
+
+  clientConnected = true
 });
 
 client.subscribe('presence');
