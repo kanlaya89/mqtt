@@ -1,4 +1,5 @@
 // var mraa = require('mraa');
+var BrokerIP = require("../config").BrokerIP
 var http = require('http');
 var pow = require('math-power');
 var mqtt = require('mqtt');
@@ -6,31 +7,45 @@ var moment = require('moment');
 var cron = require('cron');
 
 // ------------------------------
-// Schedule Job
-var every = 1;
-var cronJob = cron.job('*/' + every + ' * * * * *', function(time){
-  var now = moment().format('HH:mm:ss');
-  var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
-    client.publish('send', data);
-  console.log("run " + now);
+// Connect Broker
+client = mqtt.connect('mqtt://'+BrokerIP+':1883');
+
+// ------------------------------
+// Subscribed Topic list / subscribe with qos level
+client.subscribe({'presence':1, 'get':1}, function(err, granted){
+  if (err) {return console.log(err)}
+  console.log(granted)
 });
 
-
 // ------------------------------
-// Connect Broker
-client = mqtt.connect('mqtt://192.168.11.201:1883');
+// On Topics
+client.on('message', function(topic, message, packet) {
+  //
+  console.log("qos:" + packet.qos)
 
-// ------------------------------
-// Subscribed Topic list
-client.subscribe('presence');
-client.subscribe('get');
+  switch(topic) {
+    case 'get' :
+      //cronJob.start();
+      testFunc()
+      break;
+    case 'changeTime' :
+      cronJob.end();
+      every = 5;
+      cronJob.start();
+      break;
+  }
 
-// var now;
-// var analogPin0 = new mraa.Aio(0); //setup access analog input Analog pin #0 (A0)
-// var analogPin1 = new mraa.Aio(1);
-// var vcc = 4.6; // input volt
-// var r1 = 10.0; // [Kohm]
-// var publishEnabled = false;
+  console.log("Topic:"+topic);
+  //console.log(message.toString());
+});
+
+//
+var testFunc = function(){
+  var now = moment().format('HH:mm:ss');
+  var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
+  client.publish('send', data, {qos:2});  // publish with qos=2
+}
+
 
 // ------------------------------
 // read analog
@@ -55,44 +70,4 @@ function read(){
 }
 // read();
 
-// ------------------------------
-// On Topics
-client.on('message', function(topic, payload) {
-  switch(topic) {
-    case 'get' :
-      cronJob.start();
-      break;
-    case 'changeTime' :
-      cronJob.end();
-      every = 5;
-      cronJob.start();
-      break;
-  }
-    // if(topic === 'get') {
-    //   // publishEnabled = true;
-    //   time = 1;
-    //   cronJob.start();
-    // }
-  console.log(topic);
-  console.log(payload);
-});
 
-// ------------------------------
-// Time
-// function startTime() {
-//     var today = new Date();
-//     var h = today.getHours();
-//     var m = today.getMinutes();
-//     var s = today.getSeconds();
-//     m = checkTime(m);
-//     s = checkTime(s);
-//     now = h + ":" + m + ":" + s;
-// }
-// function checkTime(i) {
-//     if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
-//     return i;
-// }
- 
-console.log('Client publishing.. ');
-client.publish('presence', 'Edison is alive..' + Date());
-// client.end();

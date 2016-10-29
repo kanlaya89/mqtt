@@ -5,6 +5,7 @@ var http = require('http').Server(app);
 var bodyParser = require('body-parser');
 var io = require('socket.io')(http);
 var mqtt = require('mqtt');
+var moment = require('moment');
 
 var settings = {
   port: 1883,
@@ -12,15 +13,17 @@ var settings = {
 };
 
 var clientConnected = false
+var finished = false
 
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-client = mqtt.connect('mqtt://localhost');
+client = mqtt.connect('mqtt://localhost:1883');
 client.subscribe('send');
 
 client.on('message', function(topic, message, qos) {
+
   console.log(topic, message.toString());
   if(topic === 'send') {
     io.emit('all_sensor', message.toString());
@@ -30,8 +33,11 @@ client.on('message', function(topic, message, qos) {
 // -----------------------------------
 //  send html
 app.get('/', function (req, res) {
+
    res.sendFile(__dirname + "/public/html/index.html" );
 });
+
+
 // listen on port 3000
 http.listen(3000, function () {
   console.log('Example app listening on port 3000!');
@@ -39,10 +45,11 @@ http.listen(3000, function () {
 // -----------------------------------
 //  socket on
 io.on('connection', function(socket) {
+
   
   if (clientConnected === false) {
     console.log("client connected")
-    client.publish('get', '');
+    // client.publish('get', '');
     socket.on('sensor', function(data) {
       getSensor(data);
     });
@@ -61,26 +68,7 @@ var getSensor = function(sensor) {
   }
 };
 
-
-
-
 var server = new mosca.Server(settings, function() {
   console.log('Mosca server is up and running')
 });
  
-server.published = function(packet, client, cb) {
-  if (packet.topic.indexOf('echo') === 0) {
-    return cb();
-  }
- 
-  var newPacket = {
-    topic: 'echo/' + packet.topic,
-    payload: packet.payload,
-    retain: packet.retain,
-    qos: packet.qos
-  };
- 
-  // console.log('newPacket', newPacket);
-  
-  server.publish(newPacket, cb);
-}
