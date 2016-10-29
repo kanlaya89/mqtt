@@ -44,8 +44,6 @@ io.on('connection', function(socket) {
       getSensor(data);
     });
   }
-  
-
   clientConnected = true
 });
 
@@ -54,7 +52,6 @@ io.on('connection', function(socket) {
 client.on('message', function(topic, message, qos) {
   console.log(topic, message.toString());
   if(topic === 'send') {
-    
     io.emit('all_sensor', message.toString());
   };
 });
