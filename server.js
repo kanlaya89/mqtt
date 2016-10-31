@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var io = require('socket.io')(http);
 var mqtt = require('mqtt');
 var moment = require('moment');
+var BrokerIP = require("./config").BrokerIP
 
 var settings = {
   port: 1883,
@@ -19,16 +20,10 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-client = mqtt.connect('mqtt://localhost:1883');
+var client = mqtt.connect('mqtt://'+BrokerIP+':1883');
 client.subscribe('send');
+client.subscribe('presence');
 
-client.on('message', function(topic, message, qos) {
-
-  console.log(topic, message.toString());
-  if(topic === 'send') {
-    io.emit('all_sensor', message.toString());
-  };
-});
 
 // -----------------------------------
 //  send html
@@ -37,11 +32,6 @@ app.get('/', function (req, res) {
    res.sendFile(__dirname + "/public/html/index.html" );
 });
 
-
-// listen on port 3000
-http.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
-});
 // -----------------------------------
 //  socket on
 io.on('connection', function(socket) {
@@ -49,17 +39,30 @@ io.on('connection', function(socket) {
   
   if (clientConnected === false) {
     console.log("client connected")
-    // client.publish('get', '');
+    client.publish('get', '',{qos:1});
+
     socket.on('sensor', function(data) {
       getSensor(data);
     });
   }
+  socket.on("changeTime", function(data){
+     console.log(data)
+    client.publish("changeTime", data,{qos:1})
+  })
   
-
   clientConnected = true
 });
 
-client.subscribe('presence');
+//
+client.on('message', function(topic, message, qos) {
+
+  console.log(topic, message.toString());
+  if(topic === 'send') {
+    io.emit('all_sensor', message.toString());
+  };
+});
+
+//
 var getSensor = function(sensor) {
   if (sensor === 'temp') {
     console.log("temp graph");
@@ -68,7 +71,10 @@ var getSensor = function(sensor) {
   }
 };
 
-var server = new mosca.Server(settings, function() {
-  console.log('Mosca server is up and running')
+
+// listen on port 3000
+http.listen(3000, function () {
+  console.log('Example app listening on port 3000!');
 });
- 
+
+

@@ -5,6 +5,8 @@ var pow = require('math-power');
 var mqtt = require('mqtt');
 var moment = require('moment');
 var cron = require('cron');
+var id = ""
+//var every = 1;
 
 // ------------------------------
 // Connect Broker
@@ -12,31 +14,53 @@ client = mqtt.connect('mqtt://'+BrokerIP+':1883');
 
 // ------------------------------
 // Subscribed Topic list / subscribe with qos level
-client.subscribe({'presence':1, 'get':1}, function(err, granted){
+client.subscribe({'changeTime':1, 'get':1}, function(err, granted){
   if (err) {return console.log(err)}
   console.log(granted)
 });
+
+// var cronJob = cron.job('*/' + every + ' * * * * *', function(time){
+//   var now = moment().format('HH:mm:ss');
+//   var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
+//     client.publish('send', data);
+//     console.log("run " + now);
+// });
+
+var pubFunc = function(){
+  var now = moment().format('HH:mm:ss');
+  var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
+  client.publish('send', data,{qos:1});
+  console.log("run " + now);
+}
+
+
+
 
 // ------------------------------
 // On Topics
 client.on('message', function(topic, message, packet) {
   //
+  console.log("Topic:"+topic);
   console.log("qos:" + packet.qos)
+  console.log("message: "+message.toString())
 
   switch(topic) {
     case 'get' :
-      //cronJob.start();
-      testFunc()
+      console.log("on Started")
+      id = setInterval(pubFunc, 1000)
+      //testFunc()
       break;
     case 'changeTime' :
-      cronJob.end();
-      every = 5;
-      cronJob.start();
+      console.log("on ChangeTime")
+      clearInterval(id) // clear the runing one
+      // 
+      every = message.toString() * 1000;
+      console.log("every: "+every)
+      id = setInterval(pubFunc, every)
       break;
+      
   }
 
-  console.log("Topic:"+topic);
-  //console.log(message.toString());
 });
 
 //
@@ -68,6 +92,6 @@ function read(){
      }
      setTimeout(read, 1000);
 }
-// read();
+
 
 
