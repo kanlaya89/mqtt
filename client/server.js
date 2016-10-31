@@ -31,7 +31,7 @@ client.subscribe({'changeTime':1, 'get':1}, function(err, granted){
 // read analog
 function read(){
 
-    if (publishEnabled){
+    
 
         var now = moment.format('hh:mm:ss');
         var a0 = analogPin0.read(); //read the value of the analog pin0
@@ -45,7 +45,7 @@ function read(){
         var data = '{ "temp":'+temp+',"hum":'+v1.toFixed(2)+ ',"date": "'+now+'"}';
         client.publish('send', data );
          console.log(now + " ill:" + v1.toFixed(2));
-     }
+     
      //setTimeout(read, 1000);
 }
 
