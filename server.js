@@ -13,6 +13,11 @@ var settings = {
   persistence: mosca.persistence.Memory
 };
 
+var Server =  new mosca.Server(settings);
+Server.on("clientConnected", function(client){
+  console.log("client connected", client.id)
+})
+
 var clientConnected = false
 var finished = false
 

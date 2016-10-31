@@ -26,50 +26,6 @@ client.subscribe({'changeTime':1, 'get':1}, function(err, granted){
 //     console.log("run " + now);
 // });
 
-var pubFunc = function(){
-  var now = moment().format('HH:mm:ss');
-  var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
-  client.publish('send', data,{qos:1});
-  console.log("run " + now);
-}
-
-
-
-
-// ------------------------------
-// On Topics
-client.on('message', function(topic, message, packet) {
-  //
-  console.log("Topic:"+topic);
-  console.log("qos:" + packet.qos)
-  console.log("message: "+message.toString())
-
-  switch(topic) {
-    case 'get' :
-      console.log("on Started")
-      id = setInterval(pubFunc, 1000)
-      //testFunc()
-      break;
-    case 'changeTime' :
-      console.log("on ChangeTime")
-      clearInterval(id) // clear the runing one
-      // 
-      every = message.toString() * 1000;
-      console.log("every: "+every)
-      id = setInterval(pubFunc, every)
-      break;
-      
-  }
-
-});
-
-//
-var testFunc = function(){
-  var now = moment().format('HH:mm:ss');
-  var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
-  client.publish('send', data, {qos:2});  // publish with qos=2
-}
-
 
 // ------------------------------
 // read analog
@@ -90,8 +46,55 @@ function read(){
         client.publish('send', data );
          console.log(now + " ill:" + v1.toFixed(2));
      }
-     setTimeout(read, 1000);
+     //setTimeout(read, 1000);
 }
+
+
+
+
+// ------------------------------
+// On Topics
+client.on('message', function(topic, message, packet) {
+  //
+  console.log("Topic:"+topic);
+  console.log("qos:" + packet.qos)
+  console.log("message: "+message.toString())
+
+  switch(topic) {
+    case 'get' :
+      console.log("on Started")
+      id = setInterval(read, 1000)
+      //testFunc()
+      break;
+    case 'changeTime' :
+      console.log("on ChangeTime")
+      clearInterval(id) // clear the runing one
+      // 
+      every = message.toString() * 1000;
+      console.log("every: "+every)
+      id = setInterval(read, every)
+      break;
+      
+  }
+
+});
+
+//
+var pubFunc = function(){
+  var now = moment().format('HH:mm:ss');
+  var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
+  client.publish('send', data,{qos:1});
+  console.log("run " + now);
+}
+
+
+//
+var testFunc = function(){
+  var now = moment().format('HH:mm:ss');
+  var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
+  client.publish('send', data, {qos:2});  // publish with qos=2
+}
+
 
 
 
