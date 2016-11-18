@@ -17,7 +17,7 @@
 <div id="content" ng-controller="myCtrl">
 	<div id="showAll"></div>
 	<b>周期：</b>
-	<select ng-change="onSelectChange()" ng-model="data.selectedTime" 
+	<select id="select" ng-change="onSelectChange()" ng-model="data.selectedTime" 
 	ng-options="x.model for x in data.times">
 	</select>
 	<br>

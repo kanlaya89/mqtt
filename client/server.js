@@ -1,9 +1,11 @@
 // var mraa = require('mraa');
+var BrokerIP = require("../config").BrokerIP
 var http = require('http');
 var pow = require('math-power');
 var mqtt = require('mqtt');
 var moment = require('moment');
 var cron = require('cron');
+<<<<<<< HEAD
 // ------------------------------
 // Connect Broker
 client = mqtt.connect('mqtt://localhost:1883');
@@ -17,12 +19,30 @@ var cronJob = cron.job('*/' + every + ' * * * * *', function(time){
     client.publish('send', data);
   console.log("run " + now);
 });
+=======
+var id = ""
+//var every = 1;
 
 // ------------------------------
-// Subscribed Topic list
-client.subscribe('presence');
-client.subscribe('get');
+// Connect Broker
+client = mqtt.connect('mqtt://'+BrokerIP+':1883');
+>>>>>>> client_server
 
+// ------------------------------
+// Subscribed Topic list / subscribe with qos level
+client.subscribe({'changeTime':1, 'get':1}, function(err, granted){
+  if (err) {return console.log(err)}
+  console.log(granted)
+});
+
+// var cronJob = cron.job('*/' + every + ' * * * * *', function(time){
+//   var now = moment().format('HH:mm:ss');
+//   var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
+//     client.publish('send', data);
+//     console.log("run " + now);
+// });
+
+<<<<<<< HEAD
 // ------------------------------
 // On Topics
 client.on('message', function(topic, payload) {
@@ -41,14 +61,16 @@ client.on('message', function(topic, payload) {
   console.log(topic);
   console.log(payload);
 });
+=======
+>>>>>>> client_server
 
 // ------------------------------
 // read analog
 function read(){
 
-    if (publishEnabled){
+    
 
-        var now = moment.format('hh:mm:ss');
+        var now = moment().format('hh:mm:ss');
         var a0 = analogPin0.read(); //read the value of the analog pin0
         var a1 = analogPin1.read();
         var v0 = a0*vcc/1024; // analog pin0 voltage
@@ -60,10 +82,63 @@ function read(){
         var data = '{ "temp":'+temp+',"hum":'+v1.toFixed(2)+ ',"date": "'+now+'"}';
         client.publish('send', data );
          console.log(now + " ill:" + v1.toFixed(2));
-     }
-     setTimeout(read, 1000);
+     
+     //setTimeout(read, 1000);
 }
+<<<<<<< HEAD
  
 console.log('Client publishing.. ');
 client.publish('presence', 'Edison is alive..' + Date());
 // client.end();
+=======
+
+
+
+
+// ------------------------------
+// On Topics
+client.on('message', function(topic, message, packet) {
+  //
+  console.log("Topic:"+topic);
+  console.log("qos:" + packet.qos)
+  console.log("message: "+message.toString())
+
+  switch(topic) {
+    case 'get' :
+      console.log("on Started")
+      id = setInterval(pubFunc, 1000)
+      //testFunc()
+      break;
+    case 'changeTime' :
+      console.log("on ChangeTime")
+      clearInterval(id) // clear the runing one
+      // 
+      every = message.toString() * 1000;
+      console.log("every: "+every)
+      id = setInterval(pubFunc, every)
+      break;
+      
+  }
+
+});
+
+//
+var pubFunc = function(){
+  var now = moment().format('HH:mm:ss');
+  var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
+  client.publish('send', data,{qos:1});
+  console.log("run " + now);
+}
+
+
+//
+var testFunc = function(){
+  var now = moment().format('HH:mm:ss');
+  var data = '{ "temp": 23, "hum": 60, "date": "' + now + '"' + '}';
+  client.publish('send', data, {qos:2});  // publish with qos=2
+}
+
+
+
+
+>>>>>>> client_server

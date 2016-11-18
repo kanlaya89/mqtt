@@ -23,8 +23,12 @@ app.controller('myCtrl', function($scope) {
     };
 
     $scope.onSelectChange = function(){
-        
-        console.log($scope.selectedTime)
+        var value = $scope.data.selectedTime.model
+        var slicedValue = value.slice(0,value.length-1)
+        console.log(slicedValue)
+        // Emit
+        socket.emit("changeTime",slicedValue)
+
     }
     
     
