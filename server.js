@@ -8,8 +8,6 @@ var mqtt = require('mqtt');
 var moment = require('moment');
 var BrokerIP = require("./config").BrokerIP
 
-<<<<<<< HEAD
-=======
 var settings = {
   port: 1883,
   persistence: mosca.persistence.Memory
@@ -17,7 +15,6 @@ var settings = {
 
 
 
->>>>>>> client_server
 var clientConnected = false
 var finished = false
 
@@ -25,37 +22,16 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-<<<<<<< HEAD
-// -----------------------------------
-//  mosca
-var settings = {
-  port: 1883,
-  persistence: mosca.persistence.Memory
-};
-var server = new mosca.Server(settings, function() {
-  console.log('Mosca server is up and running')
-});
-// -----------------------------------
-//  subscribed topic
-client = mqtt.connect('mqtt://localhost:1883');
-client.subscribe('send');
-client.subscribe('presence');
-=======
 var client = mqtt.connect('mqtt://' + BrokerIP);
 client.subscribe('send');
 client.subscribe('presence');
 
->>>>>>> client_server
 
 // -----------------------------------
 //  send html
 app.get('/', function (req, res) {
-<<<<<<< HEAD
-  res.sendFile(__dirname + "/public/html/index.html" );
-=======
 
    res.sendFile(__dirname + "/public/html/index.html" );
->>>>>>> client_server
 });
 
 // -----------------------------------
@@ -71,14 +47,6 @@ io.on('connection', function(socket) {
       getSensor(data);
     });
   }
-<<<<<<< HEAD
-  clientConnected = true
-});
-
-// -----------------------------------
-//  on topic
-client.on('message', function(topic, message, qos) {
-=======
   socket.on("changeTime", function(data){
      console.log(data)
       console.log("send changeTime mqtt message!!!!")
@@ -92,18 +60,13 @@ client.on('message', function(topic, message, qos) {
 //
 client.on('message', function(topic, message, qos) {
 
->>>>>>> client_server
   console.log(topic, message.toString());
   if(topic === 'send') {
     io.emit('all_sensor', message.toString());
   };
 });
 
-<<<<<<< HEAD
-
-=======
 //
->>>>>>> client_server
 var getSensor = function(sensor) {
   if (sensor === 'temp') {
     console.log("temp graph");
@@ -114,13 +77,6 @@ var getSensor = function(sensor) {
 
 
 
-<<<<<<< HEAD
-// -----------------------------------
-// listen on port 3000
-http.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
-});
-=======
 
 // listen on port 3000
 http.listen(3000, function () {
@@ -132,4 +88,3 @@ var Server =  new mosca.Server(settings, function(){
   console.log("mosca running")
 })
 
->>>>>>> client_server
