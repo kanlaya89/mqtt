@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-var client = mqtt.connect('mqtt://'+BrokerIP+':1883');
+var client = mqtt.connect('mqtt://' + BrokerIP);
 client.subscribe('send');
 client.subscribe('presence');
 
@@ -49,6 +49,8 @@ io.on('connection', function(socket) {
   }
   socket.on("changeTime", function(data){
      console.log(data)
+      console.log("send changeTime mqtt message!!!!")
+
     client.publish("changeTime", data,{qos:1})
   })
   

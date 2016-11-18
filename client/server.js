@@ -33,7 +33,7 @@ function read(){
 
     
 
-        var now = moment.format('hh:mm:ss');
+        var now = moment().format('hh:mm:ss');
         var a0 = analogPin0.read(); //read the value of the analog pin0
         var a1 = analogPin1.read();
         var v0 = a0*vcc/1024; // analog pin0 voltage
@@ -63,7 +63,7 @@ client.on('message', function(topic, message, packet) {
   switch(topic) {
     case 'get' :
       console.log("on Started")
-      id = setInterval(read, 1000)
+      id = setInterval(pubFunc, 1000)
       //testFunc()
       break;
     case 'changeTime' :
@@ -72,7 +72,7 @@ client.on('message', function(topic, message, packet) {
       // 
       every = message.toString() * 1000;
       console.log("every: "+every)
-      id = setInterval(read, every)
+      id = setInterval(pubFunc, every)
       break;
       
   }
